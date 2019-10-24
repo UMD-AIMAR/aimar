@@ -11,6 +11,7 @@ Controls the aimar robot with commands for movement, navigation, image recogniti
 
 ## Credits
 Johan Vandegriff
+Kevin Kuo
 
 ## Category
 **IoT**
