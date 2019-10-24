@@ -1,0 +1,5 @@
+{
+    "expected_dialog": "left",
+    "intent_type": "left.intent",
+    "utterance": "rotate yourself left"
+}
