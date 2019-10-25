@@ -1,0 +1,17 @@
+drive forward {time} seconds
+drive forward for {time} seconds
+drive {time} seconds
+drive for {time} seconds
+forward {time} seconds
+go forward {time} seconds
+go for {time} seconds
+go {time} seconds
+run forward {time} seconds
+run forward for {time} seconds
+run {time} seconds
+run for {time} seconds
+drive forward
+go forward
+forward
+drive
+go forth
