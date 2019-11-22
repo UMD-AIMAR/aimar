@@ -1,5 +1,5 @@
 from mycroft import MycroftSkill, intent_file_handler
-
+import aimar_arm
 
 class Aimar(MycroftSkill):
     def __init__(self):
@@ -16,6 +16,12 @@ class Aimar(MycroftSkill):
             self.speak_dialog('drive.forward', {'time': time})
         else:
             self.speak_dialog('drive.forward.generic')
+
+# executing movement: send request to localhost:5000/api/bot/move?direction=???
+
+    @intent_file_handler('uarm.test.intent')
+    def handle_uarm_test(self, message):
+        aimar_arm.test()
 
 def stop(self):
     pass

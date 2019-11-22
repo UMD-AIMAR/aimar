@@ -4,6 +4,10 @@ Controls the aimar robot.
 ## About
 Controls the aimar robot with commands for movement, navigation, image recognition, and more.
 
+## Setup
+Download uArm-Python-SDK: https://github.com/uArm-Developer/uArm-Python-SDK
+Copy uarm folder to your lib/python3.x folder
+
 ## Examples
 * "Turn left"
 * "Drive to the conference room"
