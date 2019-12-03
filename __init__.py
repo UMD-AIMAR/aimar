@@ -42,7 +42,12 @@ class Aimar(MycroftSkill):
 
         # send to desk-server
         resp = requests.post(DESKTOP_URL + "/api/skin", data=image_data)
+        resp_text = resp.text
 
+        if resp_text is not None:
+            self.speak_dialog('skin', {'resp_text': resp_text})
+        else:
+            self.speak_dialog('skin.generic')
 
 def stop(self):
     pass
