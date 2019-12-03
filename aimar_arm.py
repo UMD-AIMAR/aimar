@@ -1,16 +1,13 @@
-import os
-import sys 
 import time
-import threading
-from time import sleep
-from uarm.wrapper import SwiftAPI
-from uarm.tools.list_ports import get_ports
 
-# modify this when connecting arm
+from skills.aimar.uarm.wrapper import SwiftAPI
+from skills.aimar.uarm.tools.list_ports import get_ports
+
 swift = SwiftAPI(filters={'hwid': 'USB VID:PID=2341:0042'})
 swift.waiting_ready()
 
 def test():
+    global swift
     speed = 50
     swift.get_gripper_catch()
     swift.get_polar()
@@ -25,6 +22,3 @@ def test():
         swift.set_polar(stretch=200, rotation=141, height=142, wait = True)
         swift.set_gripper(catch=False, wait = False)
         time.sleep(3)
-  
-    
-

@@ -1,0 +1,3 @@
+drive {direction} for {time} seconds
+move {direction} for {time} seconds
+go {direction} for {time} seconds

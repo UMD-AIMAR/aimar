@@ -1,23 +1,23 @@
 from mycroft import MycroftSkill, intent_file_handler
-import aimar_arm
+from skills.aimar import aimar_arm
+
+global swift
+swift = None
 
 class Aimar(MycroftSkill):
     def __init__(self):
         MycroftSkill.__init__(self)
 
-    @intent_file_handler('left.intent')
-    def handle_left(self, message):
-        self.speak_dialog('left')
-
-    @intent_file_handler('drive.forward.intent')
-    def handle_drive_forward(self, message):
+    @intent_file_handler('drive.intent')
+    def handle_drive(self, message):
         time = message.data.get('time')
+        direction = message.data.get('direction')
+        # executing movement: send request to localhost:5000/api/bot/move?direction=???
+        # after async delay stop
         if time is not None:
-            self.speak_dialog('drive.forward', {'time': time})
+            self.speak_dialog('drive', {'time': time, 'direction': direction})
         else:
-            self.speak_dialog('drive.forward.generic')
-
-# executing movement: send request to localhost:5000/api/bot/move?direction=???
+            self.speak_dialog('drive.generic')
 
     @intent_file_handler('uarm.test.intent')
     def handle_uarm_test(self, message):
@@ -28,4 +28,3 @@ def stop(self):
 
 def create_skill():
     return Aimar()
-
