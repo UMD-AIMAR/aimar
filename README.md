@@ -1,24 +1,27 @@
 # <img src="https://raw.githack.com/FortAwesome/Font-Awesome/master/svgs/solid/robot.svg" card_color="#40DBB0" width="50" height="50" style="vertical-align:bottom"/> Aimar
-Controls the aimar robot.
+[UMD-AIMAR](https://github.com/UMD-AIMAR)
 
+This repository is a Mycroft "Skill". It handles all of the user speech and figuring out what action they want AIMAR to perform.
+
+![AIMAR Diagram](https://raw.githubusercontent.com/UMD-AIMAR/mycroft-aimar/master/AIMAR-pieces.png)
 ## About
-Controls the aimar robot with commands for movement, navigation, image recognition, and more.
 
-The AIMAR skill runs alongside Mycroft. Mycroft uses Python 3 and runs on the TurtleBot.
+uArm code goes in [aimar_arm.py](https://github.com/UMD-AIMAR/mycroft-aimar/blob/master/aimar_arm.py). Note that [\_\_init.py\_\_](https://github.com/UMD-AIMAR/mycroft-aimar/blob/master/__init__.py) imports aimar_arm.
 
-The skill executes arm movements using the uArm-Python-SDK. \_\_init\_\_.py (skill file) should not directly call SDK functions.
-Instead, \_\_init\_\_.py imports aimar_arm.py and the SDK is imported in aimar_arm.py.
+ROS messaging code goes in [robot-server](https://github.com/UMD-AIMAR/robot-server), since ROS Kinetic uses Python 2. We can then make a call to robot-server by using a web request to localhost.
 
-To send ROS messages (if we are using a library that uses ROS subscribers), we have to write ROS publishser/subscriber code.
-This has to be written in the robot-server application, since ROS Kinetic uses Python 2.
-We can then make a call to robot-server by using a web request.
-
-For functions like database access and skin image classification, we send a web request to desk-server.
+Database and Skin Image Classification goes in [desk-server](https://github.com/UMD-AIMAR/desk-server). Voice commands can trigger these functions by making a web request to the desktop: https://github.com/UMD-AIMAR/mycroft-aimar/blob/master/__init__.py#L44.
 
 ## Setup
-Download uArm-Python-SDK: https://github.com/uArm-Developer/uArm-Python-SDK
+Windows: Download [Git](https://gitforwindows.org/), then open Git Bash.
 
-Copy 'uArm-Python-SDK/uarm' folder into 'aimar' folder
+Mac: Open a terminal.
+
+Run `git clone https://github.com/UMD-AIMAR/mycroft_aimar.git`
+
+Download [uArm-Python-SDK](https://github.com/uArm-Developer/uArm-Python-SDK): `git clone https://github.com/uArm-Developer/uArm-Python-SDK.git`
+
+Copy 'uArm-Python-SDK/uarm' folder into 'mycroft-aimar' folder
 
 ## Examples
 * "Turn left"
