@@ -9,7 +9,13 @@ What are [robot-server](https://github.com/UMD-AIMAR/robot-server) and [desk-ser
 
 desk-server controls central systems like skin image processing and the patient database, and should run on a desktop. robot-server controls Turtlebot/arm movement, and should be downloaded to individual Turtlebots. These two applications allow us to link voice control, code running on the robot, and code on the desktop all together.
 
-Example:
+What **is** a server?
+
+A server is an application that listens for incoming requests to a specific `address:port` value (e.g. `10.0.0.8:5000`). When it hears a request, it executes a function of code, which usually responds to the sender with some data (like a webpage). You can test this out yourself by opening cmd (for Mac, Terminal) and typing `curl https://google.com`. 
+
+Suppose we have desk-server running on a desktop at address `10.0.0.8:5000`. When image data is sent to `10.0.0.8:5000/skin`, the server classifies the image and sends the diagnosis back as a response. Now we put Python code on the bot that takes an image, and sends the web request, and reads the web response out loud.
+
+Example entire workflow:
 
 1. "AIMAR, is there a problem with my skin?"
 
@@ -19,7 +25,7 @@ Example:
 
 4. desk_server feeds the image to desk-server/skin.py and gets a prediction.
 
-5. skin_command.py gets a web response of the diagnosis.
+5. desk_server sends the diagnosis in a web response to skin_command.py.
 
 6. Mycroft responds with the diagnosis.
 
