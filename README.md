@@ -4,6 +4,25 @@
 This repository is a Mycroft "Skill". It handles all of the user speech and figuring out what action they want AIMAR to perform.
 
 ![AIMAR Diagram](https://raw.githubusercontent.com/UMD-AIMAR/mycroft-aimar/master/AIMAR-pieces.png)
+
+What are [robot-server](https://github.com/UMD-AIMAR/robot-server) and [desk-server](https://github.com/UMD-AIMAR/desk-server)?
+
+desk-server controls central systems like skin image processing and the patient database, and should run on a desktop. robot-server controls Turtlebot/arm movement, and should be downloaded to individual Turtlebots. These two applications allow us to link voice control, code running on the robot, and code on the desktop all together.
+
+Example:
+
+1. "AIMAR, is there a problem with my skin?"
+
+2. Mycroft hears this and runs mycroft_aimar/skin_command.py. (I'll make this soon)
+
+3. skin_command.py captures a photo, then sends it in a web request to desk_server's address.
+
+4. desk_server feeds the image to desk-server/skin.py and gets a prediction.
+
+5. skin_command.py gets a web response of the diagnosis.
+
+6. Mycroft responds with the diagnosis.
+
 ## About
 
 uArm code goes in [aimar_arm.py](https://github.com/UMD-AIMAR/mycroft-aimar/blob/master/aimar_arm.py). Note that [\_\_init.py\_\_](https://github.com/UMD-AIMAR/mycroft-aimar/blob/master/__init__.py) imports aimar_arm.
