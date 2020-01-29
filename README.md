@@ -11,9 +11,11 @@ desk-server controls central systems like skin image processing and the patient 
 
 What **is** a server?
 
-A server is an application that listens for incoming requests to a specific `address:port` value (e.g. `10.0.0.8:5000`). When it hears a request, it executes a function of code, which usually responds to the sender with some data (like a webpage). You can test this out yourself by opening cmd (for Mac, Terminal) and typing `curl https://google.com`. 
+A server is an application that listens for incoming requests to a specific `address:port` value (e.g. `10.0.0.8:5000`). When it hears a request, it executes a function of code, which usually responds to the sender with some data (like a webpage). You can test this out yourself by opening cmd (Terminal on Mac) and typing `curl https://google.com`. 
 
-Suppose we have desk-server running on a desktop at address `10.0.0.8:5000`. When image data is sent to `10.0.0.8:5000/skin`, the server classifies the image and sends the diagnosis back as a response. Now we put Python code on the bot that takes an image, and sends the web request, and reads the web response out loud.
+Suppose we have desk-server running on a desktop at address `10.0.0.8:5000`. When image data is sent to `10.0.0.8:5000/skin`, the server classifies the image and sends the diagnosis back as a response. 
+
+The code on the bot will take an image, send it to `10.0.0.8:5000/skin` in a web request, and read the response out loud.
 
 Example entire workflow:
 
