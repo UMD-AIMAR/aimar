@@ -4,7 +4,7 @@ import io
 import matplotlib.pyplot as plt
 
 from mycroft import MycroftSkill, intent_file_handler
-from skills.aimar import aimar_arm
+from skills.mycroft_aimar import aimar_arm
 
 DESKTOP_URL = "10.0.1.5"
 
@@ -26,6 +26,7 @@ class Aimar(MycroftSkill):
 
     @intent_file_handler('uarm.test.intent')
     def handle_uarm_test(self, message):
+        self.speak_dialog('uarm.test')
         aimar_arm.test()
 
     @intent_file_handler('skin.intent')
