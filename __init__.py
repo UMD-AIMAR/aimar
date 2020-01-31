@@ -32,6 +32,16 @@ class Aimar(MycroftSkill):
         else:
             self.speak_dialog('skin.generic')
 
+    # Patient Interactions
+    @intent_file_handler('patient.register.intent')
+    def handle_patient_register_intent(self, message):
+        self.set_context("name_tx")
+        patient_name = self.get_response("Okay. What's your name?")
+        if patient_name:
+            patient_age = self.get_response("How old are you?")
+            if patient_age:
+                self.speak(f'{patient_name} is {patient_age} years old.')
+
 
 def stop(self):
     pass
