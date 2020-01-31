@@ -1,12 +1,5 @@
-import requests
-import cv2
-import io
-import matplotlib.pyplot as plt
-
 from mycroft import MycroftSkill, intent_file_handler
-from skills.mycroft_aimar import aimar_arm
-
-DESKTOP_URL = "10.0.1.5"
+from skills.mycroft_aimar import aimar_arm, aimar_skin, aimar_move
 
 
 class Aimar(MycroftSkill):
@@ -17,8 +10,9 @@ class Aimar(MycroftSkill):
     def handle_drive(self, message):
         time = message.data.get('time')
         direction = message.data.get('direction')
-        # executing movement: send request to localhost:5000/api/bot/move?direction=???
-        # after async delay stop
+
+        aimar_move.move_simple(time, direction)
+
         if time is not None:
             self.speak_dialog('drive', {'time': time, 'direction': direction})
         else:
@@ -31,24 +25,13 @@ class Aimar(MycroftSkill):
 
     @intent_file_handler('skin.intent')
     def handle_skin_intent(self, message):
-        # captures image and stores in 'frame' variable
-        cap = cv2.VideoCapture(0)
-        ret, frame = cap.read()
-        cap.release()
-
-        # save as png buffer
-        buf = io.BytesIO()
-        plt.imsave(buf, frame, format='png')
-        image_data = buf.getvalue()
-
-        # send to desk-server
-        resp = requests.post(DESKTOP_URL + "/api/skin", data=image_data)
-        resp_text = resp.text
+        resp_text = aimar_skin.capture_photo_and_diagnose()
 
         if resp_text is not None:
             self.speak_dialog('skin', {'resp_text': resp_text})
         else:
             self.speak_dialog('skin.generic')
+
 
 def stop(self):
     pass
