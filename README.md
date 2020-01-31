@@ -21,13 +21,15 @@ Example entire workflow:
 
 1. "AIMAR, is there a problem with my skin?"
 
-2. Mycroft hears this and runs mycroft_aimar/skin_command.py. (I'll make this soon)
+2. Mycroft hears this and runs function `handle_skin_intent`, in `mycroft_aimar/__init__.py`, line 27.
 
-3. skin_command.py captures a photo, then sends it in a web request to desk_server's address.
+3. `handle_skin_intent` calls `aimar_skin.capture_photo_and_diagnose()` - see aimar_skin.py.
+
+4. aimar_skin.py captures a photo, then sends it in a web request to desk_server's address.
 
 4. desk_server feeds the image to desk-server/skin.py and gets a prediction.
 
-5. desk_server sends the diagnosis in a web response to skin_command.py.
+5. desk_server sends the diagnosis in a web response, which gets passed back up the chain.
 
 6. Mycroft responds with the diagnosis.
 
