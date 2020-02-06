@@ -3,7 +3,7 @@ import io
 import matplotlib.pyplot as plt
 import requests
 
-DESKTOP_URL = "10.0.1.5:5000"
+DESKTOP_URL = "http://localhost:5000"
 
 
 def capture_photo_and_diagnose():

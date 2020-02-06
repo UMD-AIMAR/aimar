@@ -1,5 +1,5 @@
 from mycroft import MycroftSkill, intent_file_handler
-from skills.mycroft_aimar import aimar_arm, aimar_skin, aimar_move
+from skills.mycroft_aimar import aimar_arm, aimar_skin, aimar_move, aimar_patient
 
 
 class Aimar(MycroftSkill):
@@ -35,12 +35,23 @@ class Aimar(MycroftSkill):
     # Patient Interactions
     @intent_file_handler('patient.register.intent')
     def handle_patient_register_intent(self, message):
-        self.set_context("name_tx")
-        patient_name = self.get_response("Okay. What's your name?")
-        if patient_name:
-            patient_age = self.get_response("How old are you?")
-            if patient_age:
-                self.speak(f'{patient_name} is {patient_age} years old.')
+        responses = {
+            # 'patient_id': "INTEGER PRIMARY KEY",
+            'first_name': "What's your first name?",
+            'last_name': "What about your last name?",
+            'gender': "What's your gender?",
+            'age': "How old are you?",
+            'state': "What state do you live in?",
+            'street_address': "What's your street address?",
+            'zip_code': "What's your zip code?",
+            'phone_number': "What's your phone number?"
+        }
+        order = ['first_name', 'last_name', 'age', 'gender', 'state', 'street_address', 'zip_code', 'phone_number']
+        patient_data = {}
+        for key in order:
+            patient_data[key] = self.get_response(responses[key])
+        aimar_patient.register_patient(patient_data)
+        self.speak("You are registered now!")
 
 
 def stop(self):
