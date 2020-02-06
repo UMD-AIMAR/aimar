@@ -19,4 +19,4 @@ def capture_photo_and_diagnose():
 
     # send to desk-server
     resp = requests.post(DESKTOP_URL + "/api/skin", data=image_data)
-    return resp.text
+    return resp.json()
