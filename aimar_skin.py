@@ -1,22 +1,38 @@
-import cv2
+# import cv2
+# import matplotlib.pyplot as plt
 import io
-import matplotlib.pyplot as plt
+import time
+import picamera
 import requests
 
 DESKTOP_URL = "http://localhost:5000"
 
 
-def capture_photo_and_diagnose():
-    # captures image and stores in 'frame' variable
-    cap = cv2.VideoCapture(0)
-    ret, frame = cap.read()
-    cap.release()
+# def capture_usbcam():
+#     # captures image and stores in 'frame' variable
+#     cap = cv2.VideoCapture(0)
+#     ret, frame = cap.read()
+#     cap.release()
+#
+#     # save as png buffer
+#     buf = io.BytesIO()
+#     plt.imsave(buf, frame, format='png')
+#     image_data = buf.getvalue()
+#     return image_data
 
-    # save as png buffer
+
+def capture_picam():
+    # Create an in-memory stream
     buf = io.BytesIO()
-    plt.imsave(buf, frame, format='png')
+    with picamera.PiCamera() as camera:
+        camera.start_preview()
+        # Camera warm-up time
+        time.sleep(2)
+        camera.capture(buf, 'jpeg')
     image_data = buf.getvalue()
+    return image_data
 
-    # send to desk-server
+
+def diagnose_image(image_data):
     resp = requests.post(DESKTOP_URL + "/api/skin", data=image_data)
     return resp.json()

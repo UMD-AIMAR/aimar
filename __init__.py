@@ -25,7 +25,7 @@ class Aimar(MycroftSkill):
 
     @intent_file_handler('skin.intent')
     def handle_skin_intent(self, message):
-        resp_text = aimar_skin.capture_photo_and_diagnose()
+        resp_text = aimar_skin.diagnose_image(aimar_skin.capture_picam())
 
         if resp_text is not None:
             self.speak_dialog('skin', {'resp_text': resp_text})
