@@ -24,6 +24,10 @@ Read the [Files](#files) section.
 - Patient database
     - See `aimar_patient.py` and [desk_server](https://github.com/UMD-AIMAR/desk-server)
     - Look up Python **sqlite3** tutorials. (e.g. [docs.python.org](https://docs.python.org/3/library/sqlite3.html))
+- User Interface
+    - [Mycroft GUI Blog Post](https://mycroft.ai/blog/the-mycroft-gui-the-screen-is-dead-long-live-the-screen/), 
+    [Github](https://github.com/mycroftai/mycroft-gui/tree/master/documentation)
+    - Lot of work to be done on this, idk how exactly this works
 
 **Robo** 
 - Arm movements
