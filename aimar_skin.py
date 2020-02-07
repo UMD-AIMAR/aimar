@@ -5,7 +5,7 @@ import time
 import picamera
 import requests
 
-DESKTOP_URL = "http://localhost:5000"
+DESKTOP_URL = "http://10.0.1.5:5000"
 
 
 # def capture_usbcam():
@@ -30,6 +30,7 @@ def capture_picam():
         time.sleep(2)
         camera.capture(buf, 'jpeg')
     image_data = buf.getvalue()
+    buf.close()
     return image_data
 
 
