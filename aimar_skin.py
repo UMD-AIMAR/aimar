@@ -1,24 +1,35 @@
-# import cv2
-# import matplotlib.pyplot as plt
+try:
+    import picamera
+except ImportError:
+    print("No picamera library detected.")
+import cv2
 import io
 import time
-import picamera
 import requests
+import yaml
 
-DESKTOP_URL = "http://10.0.1.5:5000"
+try:
+    with open("config.yml", "r") as config_data:
+        CONFIG = yaml.load(config_data, Loader=yaml.BaseLoader)
+        DESKTOP_IP = CONFIG["DESKTOP_IP"]
+except IOError:
+    print("config.yml does not exist! Generating default config.yml...")
+    d = {"DESKTOP_IP": "127.0.0.1"}
+    file = open("config.yml", "w")
+    file.write(yaml.dump(d))
+    exit()
 
 
-# def capture_usbcam():
-#     # captures image and stores in 'frame' variable
-#     cap = cv2.VideoCapture(0)
-#     ret, frame = cap.read()
-#     cap.release()
-#
-#     # save as png buffer
-#     buf = io.BytesIO()
-#     plt.imsave(buf, frame, format='png')
-#     image_data = buf.getvalue()
-#     return image_data
+def capture_usbcam():
+    # captures image and stores in 'frame' variable
+    cap = cv2.VideoCapture(0)
+    ret, frame = cap.read()
+    cap.release()
+    # save as png buffer
+    is_success, arr = cv2.imencode(".jpg", frame)
+    buf = io.BytesIO(arr)
+    image_data = buf.getvalue()
+    return image_data
 
 
 def capture_picam():
@@ -35,5 +46,5 @@ def capture_picam():
 
 
 def diagnose_image(image_data):
-    resp = requests.post(DESKTOP_URL + "/api/skin", data=image_data)
+    resp = requests.post(f"http://{DESKTOP_IP}:5000/api/skin", data=image_data)
     return resp.json()
