@@ -26,7 +26,7 @@ def capture_usbcam():
     ret, frame = cap.read()
     cap.release()
     # save as png buffer
-    is_success, arr = cv2.imencode(".jpg", frame)
+    is_success, arr = cv2.imencode(".jpg", img)
     buf = io.BytesIO(arr)
     image_data = buf.getvalue()
     return image_data

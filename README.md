@@ -34,7 +34,7 @@ Read the [Files](#files) section.
     - See `aimar_arm.py`
     - Google stuff
 - Robot movements
-    - See `aimar_move.py` and [robot-server](https://github.com/UMD-AIMAR/robot-server)
+    - See `aimar_move.py`
     - Read TurtleBot3 manual and [ROS tutorials](http://wiki.ros.org/turtlesim/Tutorials)
 
 ## Code Workflow
@@ -75,19 +75,11 @@ This lets Linguini and Robo people work on different files. Also, the system is 
 ## Integration Diagram
 AIMAR's workflow uses three repositories in [UMD-AIMAR](https://github.com/UMD-AIMAR): 
 [mycroft-aimar](https://github.com/UMD-AIMAR/mycroft-aimar) (this repo), 
-[robot-server](https://github.com/UMD-AIMAR/robot-server), and 
 [desk-server](https://github.com/UMD-AIMAR/desk-server).
 
-![AIMAR Diagram](imgs/AIMAR-pieces.png)
+![AIMAR Diagram](imgs/AIMAR_repository_organization.png)
 
-## What is robot-server? Why are there two boxes in the Pi?
-Mycroft uses Python 3. ROS (used to move the robot) runs on Python 2, so we can't actually import `rospy` in any of the scripts in this repository.
-Instead, we "wrap" ROS functions in a Python server, and activate those functions by using web requests, which don't care about our Python version.
-
-Notice how `mycroft-aimar` has an arrow pointing to "arm movement" - this is because the "final" code for moving the arm is actually in `mycroft-aimar/aimar_arm.py`. Meanwhile, the ROS code that actually moves the robot is inside `robot-server/bot.py`. 
-
-
-## What about desk-server?
+## desk-server?
 In theory, we have several AIMAR bots communicating with one central computer. 
 `desk-server` runs on this computer; it manages the patient database and skin diagnosis functions.
 
