@@ -73,7 +73,7 @@ The purpose is to separate **different code** into [different files](#files). Se
 This lets Linguini and Robo people work on different files. Also, the system is modular e.g. someone who's working on voice commands doesn't need to know how the arm is being moved.
 
 ## Integration Diagram
-AIMAR's workflow uses three repositories in [UMD-AIMAR](https://github.com/UMD-AIMAR): 
+AIMAR's workflow uses two repositories in [UMD-AIMAR](https://github.com/UMD-AIMAR): 
 [mycroft-aimar](https://github.com/UMD-AIMAR/mycroft-aimar) (this repo), 
 [desk-server](https://github.com/UMD-AIMAR/desk-server).
 
