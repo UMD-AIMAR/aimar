@@ -1,6 +1,10 @@
 from mycroft import MycroftSkill, intent_file_handler
-from skills.mycroft_aimar import aimar_arm, aimar_skin, aimar_move, aimar_patient
+try:
+    from skills.mycroft_aimar import aimar_arm, aimar_skin, aimar_move
+except:
+    print("Couldn't import some modules but whatever")
 
+from skills.mycroft_aimar import aimar_patient
 
 class Aimar(MycroftSkill):
     def __init__(self):
