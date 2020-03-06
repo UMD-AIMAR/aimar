@@ -1,16 +1,13 @@
 import rclpy
 from rclpy.node import Node
-from geometry_msgs import Twist
-
-ROBOT_URL = "localhost:5000"
-vel_pub = None
+from geometry_msgs.msg import Twist
 
 
 class MovementPublisher(Node):
 
     def __init__(self):
         super().__init__('movement_publisher')
-        self.publisher_ = self.create_publisher(Twist, 'topic', 10)
+        self.publisher_ = self.create_publisher(Twist, 'turtle1/cmd_vel', 10)
 
     def publish(self, msg):
         self.publisher_.publish(msg)

@@ -1,11 +1,56 @@
 from mycroft import MycroftSkill, intent_file_handler
+
+#
+# Import each file. If import fails disable that individual set of functions.
+arm_enabled, skin_enabled, move_enabled = False, False, False
+
+print("Starting AIMAR...")
+print("----------------------------")
+
 try:
-    from skills.mycroft_aimar import aimar_arm, aimar_skin, aimar_move
-except:
-    print("Couldn't import some modules but whatever")
+    from skills.mycroft_aimar import aimar_arm
+    arm_enabled = True
+except ImportError as ex:
+    print("ImportError (aimar_arm):", ex)
+except Exception as ex:
+    print(ex)
 
-from skills.mycroft_aimar import aimar_patient
+try:
+    from skills.mycroft_aimar import aimar_skin
+    skin_enabled = True
+except ImportError as ex:
+    print("ImportError (aimar_skin):", ex)
 
+try:
+    from skills.mycroft_aimar import aimar_move
+    move_enabled = True
+except ImportError as ex:
+    print("ImportError (aimar_move):", ex)
+
+try:
+    from skills.mycroft_aimar import aimar_patient
+    patient_enabled = True
+except ImportError as ex:
+    print("ImportError (aimar_patient):", ex)
+
+
+#
+# Define constants
+REGISTER_QUESTIONS = {
+            'first_name': "What's your first name?",
+            'last_name': "What about your last name?",
+            'gender': "What's your gender?",
+            'age': "How old are you?",
+            'state': "What state do you live in?",
+            'street_address': "What's your street address?",
+            'zip_code': "What's your zip code?",
+            'phone_number': "What's your phone number?"
+        }
+REGISTER_ORDER = ['first_name', 'last_name', 'age', 'gender', 'state', 'street_address', 'zip_code', 'phone_number']
+
+
+#
+# Intent handling
 class Aimar(MycroftSkill):
     def __init__(self):
         MycroftSkill.__init__(self)
@@ -29,31 +74,26 @@ class Aimar(MycroftSkill):
 
     @intent_file_handler('skin.intent')
     def handle_skin_intent(self, message):
-        resp_text = aimar_skin.diagnose_image(aimar_skin.capture_picam())
+        resp_text = aimar_skin.diagnose_image()
 
-        if resp_text is not None:
-            self.speak_dialog('skin', {'resp_text': resp_text})
+        if resp_text is None:
+            self.speak("Sorry, I couldn't analyze your skin image.")
+        elif resp_text == {}:
+            self.speak("Sorry, I don't detect any cameras plugged in.")
         else:
-            self.speak_dialog('skin.generic')
+            self.speak_dialog('skin', {'resp_text': resp_text})
 
-    # Patient Interactions
     @intent_file_handler('patient.register.intent')
     def handle_patient_register_intent(self, message):
-        responses = {
-            # 'patient_id': "INTEGER PRIMARY KEY",
-            'first_name': "What's your first name?",
-            'last_name': "What about your last name?",
-            'gender': "What's your gender?",
-            'age': "How old are you?",
-            'state': "What state do you live in?",
-            'street_address': "What's your street address?",
-            'zip_code': "What's your zip code?",
-            'phone_number': "What's your phone number?"
-        }
-        order = ['first_name', 'last_name', 'age', 'gender', 'state', 'street_address', 'zip_code', 'phone_number']
         patient_data = {}
-        for key in order:
-            patient_data[key] = self.get_response(responses[key])
+        for key in REGISTER_ORDER:
+            self.gui.show_text(REGISTER_QUESTIONS[key])
+            utterance = self.get_response(REGISTER_QUESTIONS[key])
+            if utterance is not None:
+                patient_data[key] = utterance
+            else:
+                self.speak("Okay, we'll register you some other time,")
+                return
         aimar_patient.register_patient(patient_data)
         self.speak("You are registered now!")
 

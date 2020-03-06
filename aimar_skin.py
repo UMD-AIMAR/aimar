@@ -1,12 +1,16 @@
-try:
-    import picamera
-except ImportError:
-    print("No picamera library detected.")
 import cv2
 import io
 import time
 import requests
 import yaml
+
+picamera_enabled = False
+
+try:
+    import picamera
+    picamera_enabled = True
+except ImportError as ex:
+    print(f"No picamera library found. Picamera functions will not be usable.")
 
 try:
     with open("config.yml", "r") as config_data:
@@ -26,7 +30,7 @@ def capture_usbcam():
     ret, frame = cap.read()
     cap.release()
     # save as png buffer
-    is_success, arr = cv2.imencode(".jpg", img)
+    is_success, arr = cv2.imencode(".jpg", frame)
     buf = io.BytesIO(arr)
     image_data = buf.getvalue()
     return image_data
@@ -45,6 +49,16 @@ def capture_picam():
     return image_data
 
 
-def diagnose_image(image_data):
+def diagnose_image(image_data=None):
+    try:
+        if image_data is None:
+            if picamera_enabled:
+                image_data = capture_picam()
+            else:
+                image_data = capture_usbcam()
+    except Exception as e:
+        print("An error occurred while attempting to capture an image.")
+        return {}
+
     resp = requests.post(f"http://{DESKTOP_IP}:5000/api/skin", data=image_data)
     return resp.json()
