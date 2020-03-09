@@ -74,7 +74,9 @@ class Aimar(MycroftSkill):
 
     @intent_file_handler('skin.intent')
     def handle_skin_intent(self, message):
-        resp_text = aimar_skin.diagnose_image()
+        image_data = aimar_skin.capture_image()
+        self.gui.show_image("temp_skin.png")
+        resp_text = aimar_skin.diagnose_image(image_data)
 
         if resp_text is None:
             self.speak("Sorry, I couldn't analyze your skin image.")

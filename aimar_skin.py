@@ -3,6 +3,7 @@ import io
 import time
 import requests
 import yaml
+import numpy as np
 
 picamera_enabled = False
 
@@ -49,16 +50,21 @@ def capture_picam():
     return image_data
 
 
-def diagnose_image(image_data=None):
+def capture_image():
     try:
-        if image_data is None:
-            if picamera_enabled:
-                image_data = capture_picam()
-            else:
-                image_data = capture_usbcam()
+        if picamera_enabled:
+            image_data = capture_picam()
+        else:
+            image_data = capture_usbcam()
     except Exception as e:
         print("An error occurred while attempting to capture an image.")
         return {}
+    nparr = np.frombuffer(image_data, np.uint8)
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    cv2.imwrite(f"temp_skin.png", img)
+    return image_data
 
+
+def diagnose_image(image_data=capture_image()):
     resp = requests.post(f"http://{DESKTOP_IP}:5000/api/skin", data=image_data)
     return resp.json()
