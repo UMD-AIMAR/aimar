@@ -2,8 +2,8 @@ import cv2
 import io
 import time
 import requests
-import yaml
 import numpy as np
+from skills.mycroft_aimar import aimar_util
 
 picamera_enabled = False
 
@@ -12,17 +12,6 @@ try:
     picamera_enabled = True
 except ImportError as ex:
     print(f"No picamera library found. Picamera functions will not be usable.")
-
-try:
-    with open("config.yml", "r") as config_data:
-        CONFIG = yaml.load(config_data, Loader=yaml.BaseLoader)
-        DESKTOP_IP = CONFIG["DESKTOP_IP"]
-except IOError:
-    print("config.yml does not exist! Generating default config.yml...")
-    d = {"DESKTOP_IP": "127.0.0.1"}
-    file = open("config.yml", "w")
-    file.write(yaml.dump(d))
-    exit()
 
 
 def capture_usbcam():
@@ -56,8 +45,7 @@ def capture_image():
             image_data = capture_picam()
         else:
             image_data = capture_usbcam()
-    except Exception as e:
-        print("An error occurred while attempting to capture an image.")
+    except cv2.error as e:
         return {}
     nparr = np.frombuffer(image_data, np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
@@ -66,5 +54,5 @@ def capture_image():
 
 
 def diagnose_image(image_data=capture_image()):
-    resp = requests.post(f"http://{DESKTOP_IP}:5000/api/skin", data=image_data)
+    resp = requests.post(f"http://{aimar_util.DESKTOP_IP}:5000/api/skin", data=image_data)
     return resp.json()

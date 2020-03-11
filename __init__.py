@@ -1,10 +1,13 @@
 from mycroft import MycroftSkill, intent_file_handler
+from skills.mycroft_aimar import aimar_util
+
+aimar_util.init()
 
 #
 # Import each file. If import fails disable that individual set of functions.
 arm_enabled, skin_enabled, move_enabled = False, False, False
 
-print("Starting AIMAR...")
+print("Loading AIMAR Modules...")
 print("----------------------------")
 
 try:
@@ -33,20 +36,21 @@ try:
 except ImportError as ex:
     print("ImportError (aimar_patient):", ex)
 
+print("Done loading!")
 
 #
 # Define constants
 REGISTER_QUESTIONS = {
             'first_name': "What's your first name?",
             'last_name': "What about your last name?",
-            'gender': "What's your gender?",
             'age': "How old are you?",
+            'gender': "What's your gender?",
             'state': "What state do you live in?",
             'street_address': "What's your street address?",
             'zip_code': "What's your zip code?",
             'phone_number': "What's your phone number?"
         }
-REGISTER_ORDER = ['first_name', 'last_name', 'age', 'gender', 'state', 'street_address', 'zip_code', 'phone_number']
+REGISTER_ORDER = ['first_name', 'last_name', 'age']  # 'gender', 'state', 'street_address', 'zip_code', 'phone_number'
 
 
 #
@@ -75,13 +79,15 @@ class Aimar(MycroftSkill):
     @intent_file_handler('skin.intent')
     def handle_skin_intent(self, message):
         image_data = aimar_skin.capture_image()
+        if image_data == {}:
+            self.speak("Sorry, I don't detect any cameras plugged in.")
+            return
+
         self.gui.show_image("temp_skin.png")
         resp_text = aimar_skin.diagnose_image(image_data)
 
         if resp_text is None:
             self.speak("Sorry, I couldn't analyze your skin image.")
-        elif resp_text == {}:
-            self.speak("Sorry, I don't detect any cameras plugged in.")
         else:
             self.speak_dialog('skin', {'resp_text': resp_text})
 
@@ -96,8 +102,13 @@ class Aimar(MycroftSkill):
             else:
                 self.speak("Okay, we'll register you some other time,")
                 return
-        aimar_patient.register_patient(patient_data)
-        self.speak("You are registered now!")
+
+        registered_status = aimar_patient.register_patient(patient_data)
+        if registered_status:
+            self.speak(f"Ok {patient_data['first_name']}, you're now registered!")
+        else:
+            self.speak(f"Sorry {patient_data['first_name']}, I can't contact the patient database. "
+                       f"We'll register you some other time.")
 
 
 def stop(self):
