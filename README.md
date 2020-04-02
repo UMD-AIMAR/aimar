@@ -5,8 +5,8 @@ This repository is a Mycroft "Skill". It is loaded when Mycroft starts up.
 Here are the important files to know:
 
     .
-    ├── dialog/en-us            # Mycroft dialog response data
-    ├── vocab/en-us             # Mycroft voice command data
+    ├── dialog/en-us            # Response texts, currently removed - responses are listed in the source code
+    ├── vocab/en-us             # Voice command trigger texts
     ├── __init__.py             # Central file for managing voice commands
     ├── aimar_arm.py            # uArm control code
     ├── aimar_move.py           # TurtleBot movement code
