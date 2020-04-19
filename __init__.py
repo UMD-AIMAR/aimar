@@ -52,16 +52,11 @@ print("Done loading!")
 2. Define some dialogs and file paths.
 """
 REGISTER_QUESTIONS = {
-    'first_name': "What's your first name?",
-    'last_name': "What about your last name?",
+    'full_name': "What's your name?",
     'age': "How old are you?",
-    'gender': "What's your gender?",
-    'state': "What state do you live in?",
-    'street_address': "What's your street address?",
-    'zip_code': "What's your zip code?",
-    'phone_number': "What's your phone number?"
+    'gender': "What's your gender? You can say male, female, or non-binary.",
 }
-REGISTER_ORDER = ['first_name', 'last_name', 'age']  # 'gender', 'state', 'street_address', 'zip_code', 'phone_number'
+REGISTER_ORDER = ['full_name', 'age', 'gender']
 
 UARM_DISABLED_DIALOG = "Sorry, my arm functions are currently disabled."
 MOVE_DISABLED_DIALOG = "Sorry, my movement functions are currently disabled."
