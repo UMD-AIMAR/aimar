@@ -1,42 +1,5 @@
-import os
-
 from mycroft import MycroftSkill, intent_file_handler
-from skills.mycroft_aimar import aimar_util
-
-"""
-0. Import functions. Some particular imports may not work (e.g. dependencies on uArm, ROS, etc.) and will be disabled.
-"""
-from skills.mycroft_aimar import aimar_data, aimar_camera
-uarm_enabled, move_enabled = False, False
-
-try:
-    from skills.mycroft_aimar import aimar_arm
-    uarm_enabled = True
-except ImportError as ex:
-    print("ImportError (aimar_arm):", ex)
-except Exception as ex:
-    print(ex)
-
-try:
-    from skills.mycroft_aimar import aimar_move
-    move_enabled = True
-except ImportError as ex:
-    print("ImportError (aimar_move):", ex)
-
-print("Done loading!")
-
-"""
-1. Desktop IP address is loaded in from config.yml. Define constants.
-"""
-aimar_util.init()
-print(f"Loaded DESKTOP_IP={aimar_util.DESKTOP_IP}")
-
-UARM_DISABLED_DIALOG = "Sorry, my arm functions are currently disabled."
-MOVE_DISABLED_DIALOG = "Sorry, my movement functions are currently disabled."
-
-"""
-2. Intent Handling
-"""
+from skills.mycroft_aimar import aimar_data, aimar_camera, aimar_arm, aimar_move, aimar_util
 
 
 class Aimar(MycroftSkill):
@@ -45,28 +8,22 @@ class Aimar(MycroftSkill):
 
     @intent_file_handler('drive.intent')
     def handle_drive(self, message):
-        if move_enabled:
-            time = message.data.get('time')
-            direction = message.data.get('direction')
-            aimar_move.move_simple(time, direction)
+        time = message.data.get('time')
+        direction = message.data.get('direction')
+        aimar_move.move_simple(time, direction)
 
-            action = "moving"
-            if direction == "left" or direction == "right":
-                action = "turning"
-            if time is None:
-                self.speak_dialog(f"{action} {direction}")
-            else:
-                self.speak_dialog(f"{action} {direction} for {time} seconds")
+        action = "moving"
+        if direction == "left" or direction == "right":
+            action = "turning"
+        if time is None:
+            self.speak_dialog(f"{action} {direction}")
         else:
-            self.speak(MOVE_DISABLED_DIALOG)
+            self.speak_dialog(f"{action} {direction} for {time} seconds")
 
     @intent_file_handler('uarm.test.intent')
     def handle_uarm_test(self, message):
-        if uarm_enabled:
-            self.speak("I'm moving my arm.")
-            aimar_arm.test()
-        else:
-            self.speak(UARM_DISABLED_DIALOG)
+        self.speak("I'm moving my arm.")
+        aimar_arm.test()
 
     @intent_file_handler('skin.intent')
     def handle_skin_intent(self, message):
@@ -75,16 +32,15 @@ class Aimar(MycroftSkill):
             self.speak("Sorry, I don't detect any cameras plugged in.")
             return
 
-        resp_text = aimar_camera.diagnose_skin_image(image_data)
+        report_text = aimar_camera.diagnose_skin_image(image_data)
         image_path = f"/home/kevin/mycroft-core/{aimar_camera.TEMP_IMAGE_PATH}"
-        if resp_text is None:
-            response_dialog = "Sorry, I couldn't analyze your skin image."
+        if report_text is None:
+            response = "Sorry, I couldn't analyze your skin image."
         else:
-            response_dialog = "I've analyzed your image and displayed the results."
+            response = "I've analyzed your image and displayed the results."
 
-        self.speak(response_dialog)
-        self.gui.show_image(image_path, title=resp_text,
-                            caption=response_dialog, fill="PreserveAspectFit", override_idle=10)
+        self.speak(response)
+        self.gui.show_image(image_path, title=report_text, caption=response, fill="PreserveAspectFit", override_idle=10)
 
     # TODO: get a live video feed on the mycroft gui, show a picture timer. maybe neither is possible
     @intent_file_handler('patient.register.intent')
@@ -99,7 +55,7 @@ class Aimar(MycroftSkill):
 
         image_data = aimar_camera.capture_image()
         if image_data is None:
-            self.speak("Sorry, I don't detect any cameras plugged in.")
+            self.speak("I can't register you at this time, since I don't have any cameras plugged in.")
             return
 
         registered_status = aimar_data.register_patient(full_name, image_data)
@@ -117,7 +73,7 @@ class Aimar(MycroftSkill):
         full_name = message.data.get('full_name')
         image_data = aimar_camera.capture_image()
         if image_data is None:
-            self.speak("Sorry, I don't detect any cameras plugged in.")
+            self.speak("I can't sign you in at this time, since I don't have any cameras plugged in.")
             return
 
         patient_id = aimar_data.get_patient_id(full_name, image_data)
@@ -130,6 +86,24 @@ class Aimar(MycroftSkill):
         else:
             response_dialog = f"Okay {full_name}, we will be with you shortly."
             aimar_data.enqueue_patient(patient_id)
+
+        image_path = f"/home/kevin/mycroft-core/{aimar_camera.TEMP_IMAGE_PATH}"
+        self.speak(response_dialog)
+        self.gui.show_image(image_path, fill="PreserveAspectFit", override_idle=10)
+
+    @intent_file_handler('patient.verify.intent')
+    def handle_patient_verify_intent(self, message):
+        patient_id = message.data.get('patient_id')
+        image_data = aimar_camera.capture_image()
+        if image_data is None:
+            self.speak("I can't sign you in at this time, since I don't have any cameras plugged in.")
+            return
+
+        is_match = aimar_data.verify_patient(patient_id, image_data)
+        if is_match:
+            response_dialog = "Matched"
+        else:
+            response_dialog = "Not matched"
 
         image_path = f"/home/kevin/mycroft-core/{aimar_camera.TEMP_IMAGE_PATH}"
         self.speak(response_dialog)

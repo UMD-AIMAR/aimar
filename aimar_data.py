@@ -1,7 +1,7 @@
 import requests
 from skills.mycroft_aimar import aimar_util
 
-PATIENT_API_URL = "http://{aimar_util.DESKTOP_IP}/api/patient"
+PATIENT_API_URL = f"http://{aimar_util.DESKTOP_IP}/api/patient"
 
 
 # Patient ID is generated on the server side
@@ -20,6 +20,16 @@ def is_patient_registered(patient_id):
         resp = requests.post(f"{PATIENT_API_URL}/query?patient_id={str(patient_id)}")
     except requests.exceptions.ConnectionError:
         return False
+
+    return resp
+
+
+# Verify if patient_id matches with face image.
+def verify_patient(patient_id, image_data):
+    try:
+        resp = requests.post(f"{PATIENT_API_URL}/verify?patient_id={patient_id}", data=image_data)
+    except requests.exceptions.ConnectionError:
+        return None
 
     return resp
 

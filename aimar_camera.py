@@ -12,7 +12,7 @@ try:
     import picamera
     picamera_enabled = True
 except ImportError as ex:
-    print(f"No picamera library found. Picamera functions will not be usable.")
+    print(f"Warning: No picamera library found.")
 
 
 def capture_usbcam():
