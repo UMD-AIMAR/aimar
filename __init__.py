@@ -6,19 +6,43 @@ class Aimar(MycroftSkill):
     def __init__(self):
         MycroftSkill.__init__(self)
 
+    # Patients are enqueued outside of Mycroft.
+    # e.g. run enqueue_patient(...) in a Python console.
+    @intent_file_handler('patient.checkup.intent')
+    def handle_patient_checkup_intent(self, message):
+        """ Check up the next patient, then return to the starting room. """
+        patient_id, coordinates = aimar_data.dequeue_patient()
+        aimar_util.checkup_patient(patient_id, coordinates)
+
+    """
+    Other intents are defined here for individual component testing.
+    """
+
+    # In terminal:
+    # Gazebo:     ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+    # Navigation: ros2 launch turtlebot3_navigation2 navigation2.launch.py use_sim_time:=True map:=$HOME/map.yaml
+    #
+    # Mycroft:    ./start-mycroft.sh cli
     @intent_file_handler('drive.intent')
     def handle_drive(self, message):
         time = message.data.get('time')
         direction = message.data.get('direction')
-        aimar_move.move_simple(time, direction)
+        if time and direction:
+            aimar_move.move_simple(time, direction)
 
-        action = "moving"
-        if direction == "left" or direction == "right":
-            action = "turning"
-        if time is None:
-            self.speak_dialog(f"{action} {direction}")
+            action = "moving"
+            if direction == "left" or direction == "right":
+                action = "turning"
+            if time is None:
+                self.speak_dialog(f"{action} {direction}")
+            else:
+                self.speak_dialog(f"{action} {direction} for {time} seconds")
         else:
-            self.speak_dialog(f"{action} {direction} for {time} seconds")
+            x = message.data.get('x')
+            y = message.data.get('y')
+            if x is not None and y is not None:
+                aimar_move.send_goal(float(x), float(y))
+                self.speak_dialog(f"Moving to coordinates {x}, {y}")
 
     @intent_file_handler('uarm.test.intent')
     def handle_uarm_test(self, message):
@@ -63,33 +87,6 @@ class Aimar(MycroftSkill):
             self.speak(f"Ok {full_name}, you're now registered!")
         else:
             self.speak(f"Sorry {full_name}, I can't register you at this time.")
-
-    @intent_file_handler('patient.enqueue.intent')
-    def handle_patient_enqueue_intent(self, message):
-        """ Fetches a patient's id with their full name + face image, then puts them in the checkup queue.
-            This may be done by a robot in the lobby, while other AIMAR units do the actual checkups.
-            We can also manually enqueue patients by adding database entries server-side.
-        """
-        full_name = message.data.get('full_name')
-        image_data = aimar_camera.capture_image()
-        if image_data is None:
-            self.speak("I can't sign you in at this time, since I don't have any cameras plugged in.")
-            return
-
-        patient_id = aimar_data.get_patient_id(full_name, image_data)
-        if patient_id is None:
-            response_dialog = f"Sorry, I encountered an error while trying to identify you."
-        elif patient_id == -1:
-            response_dialog = f"{full_name} was not found in the patient database. Please register first."
-        elif patient_id == -2:
-            response_dialog = f"Your face does not match up with any patient named {full_name}."
-        else:
-            response_dialog = f"Okay {full_name}, we will be with you shortly."
-            aimar_data.enqueue_patient(patient_id)
-
-        image_path = f"/home/kevin/mycroft-core/{aimar_camera.TEMP_IMAGE_PATH}"
-        self.speak(response_dialog)
-        self.gui.show_image(image_path, fill="PreserveAspectFit", override_idle=10)
 
     @intent_file_handler('patient.verify.intent')
     def handle_patient_verify_intent(self, message):

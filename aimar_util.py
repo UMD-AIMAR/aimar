@@ -1,3 +1,4 @@
+import aimar_move
 import yaml
 import os
 
@@ -19,23 +20,23 @@ except IOError:
     exit()
 
 
-def checkup_loop():
-    """ A repeating task where AIMAR checks up on patients. Patients should be specified by ID + a room.
+def checkup_patient(patient_id, coordinates, return_to_start=True):
+    """
+    A task where AIMAR checks up on a patient. The patient ID and coordinates to go to are provided.
 
-    1. Navigate to the patient's location. We can either:
-        a. Ask for a room number
-        b. Already know which room where the patient is in (via some database)
-        c. Tell the robot to 'follow me'
+    1. Navigate to the given coordinates.
     2. Arrive at patient's room.
-        a. Optionally verify the patient is in the room through facial recognition.
+        a. Verify the patient is in the room through facial recognition.
     3. Begin talking to the patient.
         a. Ask/identify the main category of illness the patient is here for.
            There should be an individual code module for each illness.
         b. General diagnosis questions: time/severity of symptoms, etc.
         c. Take measurements as needed. Depends on the module.
         d. Save all of this data to the central computer so the doctor can pull it up.
-    4. Leave the room.
-        a. check up on the next patient, if one is in the 'queue'
-        b. If not, goes back to the 'control room'.
+    4. Leave the room. We can either:
+        a. check up on the next patient
+        b. Go back to the 'control room'.
     """
+    x, y = coordinates
+    aimar_move.send_goal(x, y)
     return False
