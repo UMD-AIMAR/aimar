@@ -87,12 +87,10 @@ How do voice commands trigger those functions? Read [Code Workflow](#code-workfl
 
 
 ## Setup
-Windows: Download [Git](https://gitforwindows.org/), then open Git Bash.
+1. [Set up Mycroft](https://github.com/UMD-AIMAR/documentation/wiki/Mycroft-Setup).
 
-Mac: Open a terminal.
+2. Download the repository. Inside your Linux VM, open a terminal (Konsole) and run:
+`git clone https://github.com/UMD-AIMAR/mycroft_aimar.git`
 
-Run `git clone https://github.com/UMD-AIMAR/mycroft_aimar.git`
-
-Download [uArm-Python-SDK](https://github.com/uArm-Developer/uArm-Python-SDK): `git clone https://github.com/uArm-Developer/uArm-Python-SDK.git`
-
-Copy 'uArm-Python-SDK/uarm' folder into 'mycroft-aimar' folder
+3. For uArm (optional): download [uArm-Python-SDK](https://github.com/uArm-Developer/uArm-Python-SDK): `git clone https://github.com/uArm-Developer/uArm-Python-SDK.git`
+    - Copy 'uArm-Python-SDK/uarm' folder into 'mycroft-aimar' folder
