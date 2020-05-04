@@ -11,8 +11,19 @@ class Aimar(MycroftSkill):
     @intent_file_handler('patient.checkup.intent')
     def handle_patient_checkup_intent(self, message):
         """ Check up the next patient, then return to the starting room. """
-        patient_id, coordinates = aimar_data.dequeue_patient()
-        aimar_util.checkup_patient(patient_id, coordinates)
+        # aimar_util.checkup_next_patient()
+        patient_id = aimar_data.dequeue_patient()
+        patient_data = aimar_data.query_patient(patient_id)
+        room_number = patient_data['room_number']
+        patient_name = patient_data['patient_info'][1]
+
+        response = self.ask_yesno(f"The next patient is {patient_name}, in room {room_number}. Should I check on them?")
+        if response == 'yes':
+            x, y = aimar_data.get_room_coords(room_number)
+            self.speak(f"Okay, I'm going to {room_number}, which is at coordinates {x}, {y}")
+            aimar_move.send_goal(x, y)
+        else:
+            self.speak("Okay, I'll keep waiting.")
 
     """
     Other intents are defined here for individual component testing.
@@ -23,8 +34,23 @@ class Aimar(MycroftSkill):
     # Navigation: ros2 launch turtlebot3_navigation2 navigation2.launch.py use_sim_time:=True map:=$HOME/map.yaml
     #
     # Mycroft:    ./start-mycroft.sh cli
-    @intent_file_handler('drive.intent')
-    def handle_drive(self, message):
+    @intent_file_handler('move.goal.intent')
+    def handle_move_goal(self, message):
+        room_number = message.data.get('room_number')
+        if room_number is not None:
+            x, y = aimar_data.get_room_coords(room_number)
+        else:
+            x = float(message.data.get('x'))
+            y = float(message.data.get('y'))
+
+        if x is not None and y is not None:
+            aimar_move.send_goal(x, y)
+            self.speak_dialog(f"Moving to coordinates {x}, {y}")
+        else:
+            self.speak_dialog(f"I couldn't understand your command.")
+
+    @intent_file_handler('move.simple.intent')
+    def handle_move_simple(self, message):
         time = message.data.get('time')
         direction = message.data.get('direction')
         if time and direction:
@@ -37,12 +63,6 @@ class Aimar(MycroftSkill):
                 self.speak_dialog(f"{action} {direction}")
             else:
                 self.speak_dialog(f"{action} {direction} for {time} seconds")
-        else:
-            x = message.data.get('x')
-            y = message.data.get('y')
-            if x is not None and y is not None:
-                aimar_move.send_goal(float(x), float(y))
-                self.speak_dialog(f"Moving to coordinates {x}, {y}")
 
     @intent_file_handler('uarm.test.intent')
     def handle_uarm_test(self, message):

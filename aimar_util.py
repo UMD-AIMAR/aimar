@@ -1,4 +1,4 @@
-import aimar_move
+from skills.mycroft_aimar import aimar_data, aimar_move
 import yaml
 import os
 
@@ -20,7 +20,7 @@ except IOError:
     exit()
 
 
-def checkup_patient(patient_id, coordinates, return_to_start=True):
+def checkup_next_patient():
     """
     A task where AIMAR checks up on a patient. The patient ID and coordinates to go to are provided.
 
@@ -37,6 +37,8 @@ def checkup_patient(patient_id, coordinates, return_to_start=True):
         a. check up on the next patient
         b. Go back to the 'control room'.
     """
-    x, y = coordinates
+    patient_id = aimar_data.dequeue_patient()
+    room_number = aimar_data.query_patient(patient_id)['room_number']
+    x, y = aimar_data.get_room_coords(room_number)
     aimar_move.send_goal(x, y)
     return False

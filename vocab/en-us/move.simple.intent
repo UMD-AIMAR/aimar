@@ -3,4 +3,3 @@ move {direction} for {time} seconds
 go {direction} for {time} seconds
 turn {direction}
 turn {direction} for {time} seconds
-move to coordinates {x} {y}

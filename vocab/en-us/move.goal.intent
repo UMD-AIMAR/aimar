@@ -1,0 +1,2 @@
+move to coordinates {x} {y}
+go to room {room_number}
