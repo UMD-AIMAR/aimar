@@ -1,12 +1,11 @@
 import cv2
 import io
 import time
-import requests
 import numpy as np
-from skills.mycroft_aimar import aimar_util
+import os
 
 picamera_enabled = False
-TEMP_IMAGE_PATH = "temp_image.png"
+TEMP_IMAGE_FILE = "temp_image.png"
 
 try:
     import picamera
@@ -40,7 +39,7 @@ def capture_picam():
     return image_data
 
 
-def capture_image():
+def capture_image(save_file=TEMP_IMAGE_FILE):
     try:
         if picamera_enabled:
             image_data = capture_picam()
@@ -51,17 +50,5 @@ def capture_image():
         return None
     nparr = np.frombuffer(image_data, np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    cv2.imwrite(TEMP_IMAGE_PATH, img)
-    return image_data
-
-
-def diagnose_skin_image(image_data):
-    try:
-        resp = requests.post(f"http://{aimar_util.DESKTOP_IP}/api/skin", data=image_data)
-        resp_json = resp.json()
-        report_text = ""
-        for key in resp_json:
-            report_text += f"{key}: {100*float(resp_json[key]):.1f}%\n"
-        return report_text
-    except OSError:
-        return None
+    cv2.imwrite(save_file, img)
+    return image_data, os.path.abspath(save_file)
