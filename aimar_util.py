@@ -113,3 +113,14 @@ def diagnose_skin_image(image_data):
         return report_text
     except OSError:
         return None
+
+
+def extract_symptom(text, dialog_tree):
+    for i, symptom in enumerate(dialog_tree):
+        if text.lower() == symptom['name'].lower():
+            return symptom
+    return None
+
+
+def extract_factor(text):
+    return None
