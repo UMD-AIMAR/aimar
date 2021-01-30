@@ -1,0 +1,7 @@
+fuzzywuzzy~=0.18.0
+nltk~=3.5
+rospy~=1.15.9
+requests~=2.22.0
+PyYAML~=5.3.1
+numpy~=1.17.4
+python-Levenshtein~=0.12.1

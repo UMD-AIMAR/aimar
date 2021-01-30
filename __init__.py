@@ -1,10 +1,15 @@
 from mycroft import MycroftSkill, intent_file_handler, AdaptIntent, intent_handler
 import traceback
 import sys
-MYCROFT_AIMAR_DIR = 'skills/mycroft_aimar'
-if MYCROFT_AIMAR_DIR not in sys.path:
-    sys.path.append(MYCROFT_AIMAR_DIR)
-
+AIMAR_DIR = 'skills/mycroft_aimar'
+if AIMAR_DIR not in sys.path:
+    sys.path.append(AIMAR_DIR)
+try:
+    from modules import symptomchecker
+except ImportError as e:
+    print()
+    traceback.print_exc()
+    print()
 try:
     import aimar_util
 except ImportError as e:
@@ -35,8 +40,6 @@ class Aimar(MycroftSkill):
     def __init__(self):
         MycroftSkill.__init__(self)
 
-    # Patients are enqueued outside of Mycroft.
-    # e.g. run enqueue_patient(...) in a Python console.
     @intent_file_handler('patient.checkup.intent')
     def handle_patient_checkup_intent(self, message):
         """ Check up the next patient, then return to the starting room. """
@@ -56,34 +59,30 @@ class Aimar(MycroftSkill):
     # Medical chatbot
     @intent_file_handler('diagnose.intent')
     def handle_category_diagnosis(self, message):
-        import json
-        with open('mayo_clinic_dialog.json', 'r') as f:
-            dialog_tree = json.load(f)
-
         response = self.get_response("Tell me about your problem.", on_fail=" ", )
-        symptom = aimar_util.extract_symptom(response, dialog_tree)
+        symptom, questions = symptomchecker.match(response)
         while not symptom:
             response = self.get_response("I don't know that symptom.", on_fail=" ", )
-            symptom = aimar_util.extract_symptom(response, dialog_tree)
+            symptom, questions = symptomchecker.match(response)
 
-        factors = []
-        symptom_dialogs = symptom['dialogs']
-        for i, (question_prefix, factors) in enumerate(symptom_dialogs.items()):
-            factors = [f.lower() for f in factors]
+        responses = []
+        for i, (question_prefix, choices) in enumerate(questions):
+            choices = [f.lower() for f in choices]
             # Create next question
-            max_i = min(2, len(factors) - 1)
-            question = f"{question_prefix} {', '.join(factors[:max_i])}"
-            if len(factors) == 1:
-                question += f"{factors[max_i]}?"
+            max_i = min(2, len(choices) - 1)
+            question = f"{question_prefix} {', '.join(choices[:max_i])}"
+            if len(choices) == 1:
+                question += f"{choices[max_i]}?"
             else:
-                question += f", or {factors[max_i]}?"
+                question += f", or {choices[max_i]}?"
             if (i == 0):
                 question += " You may also describe symptoms which are not on the list of options, and I'll try my best to understand."
+            self.gui.show_text(question)
             response = self.get_response(question, on_fail=" ")
-            factor = aimar_util.extract_factor(response)
-            factors.append(factor)
+            responses.append(response)
 
         self.speak("Thank you. I am now logging our conversation.")
+        symptomchecker.save_dialog(questions, responses)
 
     """
     Other intents are defined here for individual component testing.
@@ -105,7 +104,7 @@ class Aimar(MycroftSkill):
 
         if x is not None and y is not None:
             aimar_move.send_goal(x, y)
-            self.speak_dialog(f"Moving to coordinates {x}, {y}")
+            self.speak_dialog(f"Moving to coordinates {int(x)}, {int(y)}")
         else:
             self.speak_dialog(f"I couldn't understand your command.")
 

@@ -1,40 +1,16 @@
 import time
-import rclpy
-from rclpy.node import Node
+import rospy
 
-# For simple movement
-from geometry_msgs.msg import Twist
-
-# For goal_pose
+from geometry_msgs.msg import Twist, PoseStamped, Pose, Point, Quaternion
 from std_msgs.msg import Header
-from geometry_msgs.msg import PoseStamped, Pose, Point, Quaternion
-from builtin_interfaces.msg import Time
 
-
-class MovementPublisher(Node):
-
-    def __init__(self):
-        super().__init__('movement_publisher')
-        self.publisher_ = self.create_publisher(Twist, 'turtle1/cmd_vel', 10)
-
-    def publish(self, msg):
-        self.publisher_.publish(msg)
-
-
-class GoalPublisher(Node):
-
-    def __init__(self):
-        super().__init__('goal_publisher')
-        self.publisher_ = self.create_publisher(PoseStamped, '/move_base_simple/goal', 10)
-
-    def publish(self, msg):
-        self.publisher_.publish(msg)
-        self.get_logger().info('Publishing: "%s"' % msg)
-
-
-rclpy.init()
-vel_pub = MovementPublisher()
-goal_pub = GoalPublisher()
+print("Initializing ROS node. Make sure roscore is running.")
+rospy.init_node('aimar', disable_signals=True, anonymous=True)
+time.sleep(1)
+import os
+print(os.system("rosnode list"))
+vel_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
+goal_pub = rospy.Publisher('/move_base_simple/goal', PoseStamped, queue_size=10)
 
 
 """
@@ -68,7 +44,7 @@ def move_simple(time_limit, direction):
 
     start = time.time()
     elapsed = 0
-    while elapsed < time_limit:
+    while elapsed < int(time_limit):
         elapsed = time.time() - start
 
     move_stop()
@@ -83,7 +59,7 @@ send_goal: creates a ROS 'PoseStamped' message and tells the robot to move to th
 def create_goal_pose(x, y):
     pose = PoseStamped(
         header=Header(
-            stamp=Time(sec=0, nanosec=0),
+            stamp=rospy.Time.now(),
             frame_id='map'),
         pose=Pose(
             position=Point(x=x, y=y, z=0.0),
@@ -95,6 +71,3 @@ def create_goal_pose(x, y):
 def send_goal(x, y):
     msg = create_goal_pose(x, y)
     goal_pub.publish(msg)
-
-# node.destroy_node()
-# rclpy.shutdown()

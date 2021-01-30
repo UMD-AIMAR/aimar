@@ -1,5 +1,7 @@
 drive {direction} for {time} seconds
 move {direction} for {time} seconds
+move {direction} for one second
+move {direction} for 1 second
 go {direction} for {time} seconds
 turn {direction}
 turn {direction} for {time} seconds

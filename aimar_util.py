@@ -73,7 +73,8 @@ def match_patient(full_name, image_data):
 
 
 def enqueue_patient(patient_id, room_number):
-    """ Adds a patient id to the checkup queue. """
+    """ Adds a patient id to the checkup queue. Patients are enqueued outside of Mycroft.
+        e.g. run enqueue_patient(...) in a Python console."""
     try:
         resp = requests.post(f"{DESK_SERVER_URL}/patient/enqueue?patient_id={str(patient_id)}&room_number={str(room_number)}")
     except requests.exceptions.ConnectionError:
@@ -113,14 +114,3 @@ def diagnose_skin_image(image_data):
         return report_text
     except OSError:
         return None
-
-
-def extract_symptom(text, dialog_tree):
-    for i, symptom in enumerate(dialog_tree):
-        if text.lower() == symptom['name'].lower():
-            return symptom
-    return None
-
-
-def extract_factor(text):
-    return None
