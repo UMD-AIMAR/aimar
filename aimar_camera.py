@@ -47,8 +47,13 @@ def capture_image(save_file=TEMP_IMAGE_FILE):
             image_data = capture_usbcam()
     except cv2.error as e:
         print(e)
-        return None
+        return None, None
     nparr = np.frombuffer(image_data, np.uint8)
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    cv2.imwrite(save_file, img)
-    return image_data, os.path.abspath(save_file)
+    final_save_file = save_file
+    i = 1
+    while os.path.exists(final_save_file):
+        final_save_file = save_file.split('.')[0] + f"{i}.png"
+        i += 1
+    cv2.imwrite(final_save_file, img)
+    return image_data, os.path.abspath(final_save_file)

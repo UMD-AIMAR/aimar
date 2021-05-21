@@ -30,6 +30,9 @@ def top_match(scores):
 
 
 def match(query):
+    if query is None:
+        return None, None
+
     scores = {}
     tokens = clean_text(query, remove_stopwords=True, return_tokens=True)
 

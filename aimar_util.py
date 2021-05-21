@@ -90,8 +90,7 @@ def dequeue_patient():
     except requests.exceptions.ConnectionError:
         return False
 
-    patient_id = int(resp.json()['patient_id'])
-    return patient_id
+    return resp.json()
 
 
 def get_room_coords(room_number):

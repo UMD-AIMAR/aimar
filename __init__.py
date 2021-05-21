@@ -1,9 +1,14 @@
+import os
+import time
+
 from mycroft import MycroftSkill, intent_file_handler, AdaptIntent, intent_handler
 import traceback
 import sys
-AIMAR_DIR = 'skills/mycroft_aimar'
+
+AIMAR_DIR = "/home/kevin/mycroft-core/skills/mycroft_aimar"
 if AIMAR_DIR not in sys.path:
     sys.path.append(AIMAR_DIR)
+
 try:
     from modules import symptomchecker
 except ImportError as e:
@@ -36,32 +41,27 @@ except ImportError as e:
     print()
 
 
-class Aimar(MycroftSkill):
+class AIMAR(MycroftSkill):
     def __init__(self):
         MycroftSkill.__init__(self)
 
     @intent_file_handler('patient.checkup.intent')
     def handle_patient_checkup_intent(self, message):
-        """ Check up the next patient, then return to the starting room. """
-        patient_id = aimar_util.dequeue_patient()
-        patient_data = aimar_util.query_patient(patient_id)
-        room_number = patient_data['room_number']
-        patient_name = patient_data['patient_info'][1]
+        """ Move to the next queued room. """
+        patient_data = aimar_util.dequeue_patient()
+        room_number = patient_data['room']
+        patient_id = patient_data['id']
 
-        response = self.ask_yesno(f"The next patient is {patient_name}, in room {room_number}. Should I check on them?")
-        if response == 'yes':
-            x, y = aimar_util.get_room_coords(room_number)
-            self.speak(f"Okay, I'm going to {room_number}, which is at coordinates {x}, {y}")
-            aimar_move.send_goal(x, y)
-        else:
-            self.speak("Okay, I'll keep waiting.")
+        self.aimar_show_image(f"I'm going to see patient ID {patient_id}, in room {room_number}", "aimar.png", 126, speak=True)
+        x, y = aimar_util.get_room_coords(room_number)
+        aimar_move.send_goal(x, y)
 
     # Medical chatbot
-    @intent_file_handler('diagnose.intent')
+    @intent_file_handler('medicalchatbot.intent')
     def handle_category_diagnosis(self, message):
         response = self.get_response("Tell me about your problem.", on_fail=" ", )
         symptom, questions = symptomchecker.match(response)
-        while not symptom:
+        while not response or not symptom:
             response = self.get_response("I don't know that symptom.", on_fail=" ", )
             symptom, questions = symptomchecker.match(response)
 
@@ -76,7 +76,7 @@ class Aimar(MycroftSkill):
             else:
                 question += f", or {choices[max_i]}?"
             if (i == 0):
-                question += " You may also describe symptoms which are not on the list of options, and I'll try my best to understand."
+                question += " You may also describe similar symptoms which are not on the list of options, and I'll try my best to understand."
             self.gui.show_text(question)
             response = self.get_response(question, on_fail=" ")
             responses.append(response)
@@ -84,9 +84,25 @@ class Aimar(MycroftSkill):
         self.speak("Thank you. I am now logging our conversation.")
         symptomchecker.save_dialog(questions, responses)
 
-    """
-    Other intents are defined here for individual component testing.
-    """
+    def aimar_show_video(self, header_text, video_path):
+        self.gui.clear()
+        self.gui['videoSource'] = video_path
+        self.gui['headerText'] = header_text
+        self.gui.show_page("video.qml")
+
+    def aimar_show_image(self, header_text, image_path, height=270, refresh=True, speak=None):
+        if refresh:
+            self.gui.clear()
+        self.gui['imageSource'] = image_path
+        self.gui['headerText'] = header_text
+        self.gui['imageHeight'] = height
+        self.gui.show_page("image.qml")
+        if speak:
+            if speak == 'ask':
+                response = self.get_response(header_text)
+                return response
+            else:
+                self.speak(header_text)
     
     # In terminal:
     # Gazebo:     ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
@@ -142,14 +158,14 @@ class Aimar(MycroftSkill):
             response = "I've analyzed your image and displayed the results."
 
         self.speak(response)
-        self.gui.show_image(image_path, title=report_text, caption=response, fill="PreserveAspectFit", override_idle=10)
+        self.aimar_show_image("Skin image:", image_path, 126)
 
     # TODO: get a live video feed on the mycroft gui, show a timer for how long pictures last. maybe neither is possible
     @intent_file_handler('patient.register.intent')
     def handle_patient_register_intent(self, message):
         """ Asks the patient for their name and a picture. Stores this info as an entry in the database. """
         q_name = "What's your name?"
-        self.gui.show_text(q_name)
+        self.aimar_show_image("What's your name?", "aimar.png", 126)
         full_name = self.get_response(q_name)
         if full_name is None:
             self.speak("Okay, we'll register you some other time,")
@@ -193,4 +209,4 @@ def stop(self):
 
 
 def create_skill():
-    return Aimar()
+    return AIMAR()
